@@ -1,7 +1,7 @@
 package main
 
 import (
-	"linter/pkg/analyzer"
+	"github.com/AntiSlang/linter/pkg/analyzer"
 
 	"golang.org/x/tools/go/analysis/singlechecker"
 )

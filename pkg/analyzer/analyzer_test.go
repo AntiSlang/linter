@@ -5,8 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/AntiSlang/linter/pkg/analyzer"
+
 	"golang.org/x/tools/go/analysis/analysistest"
-	"linter/pkg/analyzer"
 )
 
 func TestAnalyzer(t *testing.T) {

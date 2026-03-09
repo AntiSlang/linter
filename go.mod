@@ -1,4 +1,4 @@
-module linter
+module github.com/AntiSlang/linter
 
 go 1.26
 

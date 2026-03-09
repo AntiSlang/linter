@@ -1,0 +1,10 @@
+linters-settings:
+  custom:
+    linter:
+      path: .
+      description: "custom log linter"
+
+linters:
+  disable-all: true
+  enable:
+    - linter

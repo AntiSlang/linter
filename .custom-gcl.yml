@@ -1,0 +1,10 @@
+version: v1.61.0
+
+plugins:
+  - module: 'github.com/AntiSlang/linter'
+    import: 'github.com/AntiSlang/linter/plugin'
+    version: v0.0.0
+
+replace:
+  - module: 'github.com/AntiSlang/linter'
+    path: '/mnt/c/Users/antis/GolandProjects/linter'
