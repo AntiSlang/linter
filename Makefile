@@ -26,7 +26,7 @@ install-tools:
 .PHONY: build-custom-lint
 build-custom-lint:
 	go mod tidy
-	GOPRIVATE=github.com/AntiSlang/linter golangci-lint custom -v
+	GOSUMDB=off GOPROXY=direct GOTOOLCHAIN=local golangci-lint custom -v
 
 .PHONY: run-plugin
 run-plugin:
