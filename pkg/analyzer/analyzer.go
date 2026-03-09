@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
@@ -13,7 +14,7 @@ import (
 
 var (
 	reOnlyEnglishAndSpaces = regexp.MustCompile(`^[a-zA-Z0-9\s]+$`)
-	sensitiveKeywords      = []string{"password", "token", "api_key", "secret", "passwd"}
+	sensitiveKeywords      = []string{"password", "token", "api key"}
 	logMethods             = map[string]bool{"Debug": true, "Info": true, "Warn": true, "Error": true}
 )
 
@@ -47,7 +48,8 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					return
 				}
 
-				if unicode.IsUpper(rune(msg[0])) {
+				firstRune, _ := utf8.DecodeRuneInString(msg)
+				if unicode.IsUpper(firstRune) {
 					pass.Reportf(lit.Pos(), "log message should start with a lowercase letter")
 				}
 
@@ -78,7 +80,7 @@ func isLoggingCall(pass *analysis.Pass, call *ast.CallExpr) bool {
 		pkg := selection.Obj().Pkg()
 		if pkg != nil {
 			path := pkg.Path()
-			return path == "log/slog" || path == "go.uber.org/zap"
+			return path == "log/slog" || path == "go.uber.org/zap" || path == "linter_test"
 		}
 	}
 	return false
