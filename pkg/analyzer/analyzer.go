@@ -19,7 +19,7 @@ var (
 )
 
 var Analyzer = &analysis.Analyzer{
-	Name:     "linter",
+	Name:     "loglinter",
 	Doc:      "checks logging messages for style and security standards",
 	Run:      run,
 	Requires: []*analysis.Analyzer{inspect.Analyzer},

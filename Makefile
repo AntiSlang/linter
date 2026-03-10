@@ -17,21 +17,18 @@ pre-commit:
 clean:
 	@rm -rf $(BUILD_DIR)
 
-# golangci-lint plugin dependencies, build and run
+# golangci-lint plugin: build, run
 
-.PHONY: install-tools
-install-tools:
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+.PHONY: build-plugin
+build-plugin:
+	@echo "building plugin..."
+	@mkdir -p $(PLUGIN_DIR)
+	go build $(PLUGIN_FLAGS) -o $(PLUGIN_SO) $(PLUGIN_SRC)
 
-.PHONY: build-custom-lint
-build-custom-lint:
-	go mod tidy
-	GOSUMDB=off GOPROXY=direct GOTOOLCHAIN=local golangci-lint custom -v
-
-.PHONY: run-plugin
-run-plugin:
-	@echo "running plugin..."
-	./$(APP_BIN_DIR)/native/linter --plugin $(PLUGIN_SO) run ./...
+.PHONY: test-plugin
+test-plugin: build-plugin
+	@echo "running golangci-lint with plugin..."
+	@golangci-lint run --config .golangci.yml ./...
 
 # non-plugin builds: native, linux-arm64, linux-amd64
 

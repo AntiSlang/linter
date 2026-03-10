@@ -1,10 +1,11 @@
-linters-settings:
-  custom:
-    linter:
-      path: .
-      description: "custom log linter"
+version: "2"
 
 linters:
-  disable-all: true
   enable:
-    - linter
+    - loglinter
+  settings:
+    custom:
+      loglinter:
+        type: goplugin
+        path: build/plugins/linter.so
+        description: "Checks logging messages"

@@ -2,7 +2,7 @@
 
 Линтер для проверки лог-сообщений
 
-Версия Go: 1.26
+Версия Go: 1.25
 
 1. Лог-сообщения должны начинаться со строчной буквы
 2. Лог-сообщения должны быть только на английском языке
@@ -12,15 +12,19 @@
 Сборка осуществляется через Makefile. Возможно собрать плагин для golangci-lint, либо как отдельный бинарник
 
 Установка плагина в проект:
-1. Собрать плагин: `make build-plugin` / `make build-plugin-linux-arm64` / `make build-plugin-linux-amd64`
-2. Подключить в golangci-lint:
+1. Собрать плагин: `make build-plugin`
+2. Создать файл `.golangci.yml` с содержимым:
 ```
-linters-settings:
-  custom:
-    loglinter:
-      path: ./linter.so
+version: "2"
+
 linters:
   enable:
     - loglinter
+  settings:
+    custom:
+      loglinter:
+        type: goplugin
+        path: [путь до linter.so]
+        description: "Checks logging messages"
 ```
-3. Запустить: `golangci-lint run ./...`
+3. Запустить: `golangci-lint run --config .golangci.yml ./...`
