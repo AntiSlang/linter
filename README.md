@@ -42,4 +42,5 @@ linters:
 3. Запустить: `golangci-lint run --config .golangci.yml ./...`
 
 Пример:
+
 ![Скриншот](https://i.ibb.co/qLNfkdjB/example.png)
