@@ -9,3 +9,6 @@ linters:
         type: goplugin
         path: build/plugins/linter.so
         description: "Checks logging messages"
+        settings:
+          check-lowercase: true
+          sensitive-words: "password,token,api key,configtest"

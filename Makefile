@@ -17,6 +17,10 @@ pre-commit:
 clean:
 	@rm -rf $(BUILD_DIR)
 
+.PHONY: test
+test:
+	@go test -v ./...
+
 # golangci-lint plugin: build, run
 
 .PHONY: build-plugin

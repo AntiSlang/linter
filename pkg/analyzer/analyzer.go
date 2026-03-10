@@ -14,8 +14,13 @@ import (
 
 var (
 	reOnlyEnglishAndSpaces = regexp.MustCompile(`^[a-zA-Z0-9\s]+$`)
-	sensitiveKeywords      = []string{"password", "token", "api key"}
 	logMethods             = map[string]bool{"Debug": true, "Info": true, "Warn": true, "Error": true}
+
+	checkLowercase bool
+	checkEnglish   bool
+	checkSpecials  bool
+	checkSensitive bool
+	sensitiveWords string
 )
 
 var Analyzer = &analysis.Analyzer{
@@ -23,6 +28,14 @@ var Analyzer = &analysis.Analyzer{
 	Doc:      "checks logging messages for style and security standards",
 	Run:      run,
 	Requires: []*analysis.Analyzer{inspect.Analyzer},
+}
+
+func init() {
+	Analyzer.Flags.BoolVar(&checkLowercase, "check-lowercase", true, "check if log message starts with a lowercase letter")
+	Analyzer.Flags.BoolVar(&checkEnglish, "check-english", true, "check if log message is in English only")
+	Analyzer.Flags.BoolVar(&checkSpecials, "check-specials", true, "check if log message contains forbidden symbols")
+	Analyzer.Flags.BoolVar(&checkSensitive, "check-sensitive", true, "check for sensitive data in logs")
+	Analyzer.Flags.StringVar(&sensitiveWords, "sensitive-words", "password,token,api key", "comma-separated list of sensitive words")
 }
 
 func run(pass *analysis.Pass) (interface{}, error) {
@@ -37,8 +50,15 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			return
 		}
 
-		for _, arg := range call.Args {
-			checkSensitiveData(pass, arg)
+		keywords := strings.Split(sensitiveWords, ",")
+		for i := range keywords {
+			keywords[i] = strings.TrimSpace(keywords[i])
+		}
+
+		if checkSensitive {
+			for _, arg := range call.Args {
+				checkSensitiveData(pass, arg, keywords)
+			}
 		}
 
 		if len(call.Args) > 0 {
@@ -48,17 +68,19 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					return
 				}
 
-				firstRune, _ := utf8.DecodeRuneInString(msg)
-				if unicode.IsUpper(firstRune) {
-					pass.Reportf(lit.Pos(), "log message should start with a lowercase letter")
+				if checkLowercase {
+					firstRune, _ := utf8.DecodeRuneInString(msg)
+					if unicode.IsUpper(firstRune) {
+						pass.Reportf(lit.Pos(), "log message should start with a lowercase letter")
+					}
 				}
 
-				if containsCyrillic(msg) {
+				if checkEnglish && containsCyrillic(msg) {
 					pass.Reportf(lit.Pos(), "log message should be in English only")
 					return
 				}
 
-				if !reOnlyEnglishAndSpaces.MatchString(msg) {
+				if checkSpecials && !reOnlyEnglishAndSpaces.MatchString(msg) {
 					pass.Reportf(lit.Pos(), "log message contains forbidden symbols or emojis")
 				}
 			}
@@ -86,7 +108,7 @@ func isLoggingCall(pass *analysis.Pass, call *ast.CallExpr) bool {
 	return false
 }
 
-func checkSensitiveData(pass *analysis.Pass, expr ast.Expr) {
+func checkSensitiveData(pass *analysis.Pass, expr ast.Expr, sensitiveKeywords []string) {
 	ast.Inspect(expr, func(n ast.Node) bool {
 		switch x := n.(type) {
 		case *ast.BasicLit:
